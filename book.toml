@@ -1,0 +1,10 @@
+[book]
+authors = ["sagi"]
+language = "en"
+src = "src"
+title = "Example Book"
+
+[output.html]
+default-theme = "latte"
+preferred-dark-theme = "mocha"
+additional-css = ["theme/catppuccin.css"]

@@ -1,8 +1,7 @@
 [book]
 authors = ["sagi"]
+title = "The LearnixOS Book"
 language = "en"
-src = "src"
-title = "Example Book"
 
 [output.html]
 default-theme = "latte"

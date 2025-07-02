@@ -10,7 +10,6 @@ on:
 jobs:
   linkcheck:
     runs-on: ubuntu-latest
-    needs: spellcheck
     steps:
       - name: Checkout The Repository
         uses: actions/checkout@v4

@@ -1,10 +1,10 @@
 [book]
-authors = ["sagi"]
+authors = ["Sagi"]
 title = "The LearnixOS Book"
 language = "en"
 
 [output.html]
-default-theme = "latte"
+default-theme = "rust"
 preferred-dark-theme = "mocha"
 additional-css = ["theme/catppuccin.css"]
 

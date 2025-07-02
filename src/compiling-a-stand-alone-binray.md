@@ -21,7 +21,7 @@ This can easily be run on you computer with `cargo run` but it uses the standard
 
 ## Ignoring The Standard Library
 
-As mentioned before we don't want to depend on the standard library because it is meant for already existing operating systems. To ignore it, simply add `#!\[no\_std]` on the top of our crate.
+As mentioned before we don't want to depend on the standard library because it is meant for already existing operating systems. To ignore it, simply add `#![no_std]` on the top of our crate.
 
 If we then try to compile out create, we get this error massage:
 

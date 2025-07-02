@@ -24,9 +24,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install mdBook using taiki-e/install-action
-        uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2
         with:
-          tool: mdbook
+          tool: mdbook,mdbook-linkcheck
 
       - name: Build the book
         run: mdbook build

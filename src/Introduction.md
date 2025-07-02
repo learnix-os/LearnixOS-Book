@@ -2,17 +2,17 @@
 
 Hello there![^1]
 
-This is a guide on how to write an operating system in rust, from scratch.
+This is a book on how to write a functioning operating system in rust, from scratch.
 
-And I really mean _from scratch_ I will not use ANY[^2] external libraries, and all of the thought process and code will be explained and documented in this blog as well as in this [repo](https://github.com/sagi21805/LearnixOS) which will contain all of the implementation!
+I will not use ANY[^2] external libraries, and all of the thought process, code and implementations will be explained and documented here as well as in this [repo](https://github.com/sagi21805/LearnixOS) which will contain all of the implementation!
 
 ## Base Knowledge
 
-This blog will be technical, and will assume little programming knowledge background, but not necessarily in rust
+This blog will be technical, and will assume a little bit of a programming knowledge background, but not necessarily in rust
 
 If you are not coming from a low level programming knowledge that's fine!
 
-Just make sure you know this stuff, and probably similar stuff that I am forgetting. If in any place on this blog I take some things for granted, please, open an issue [here](https://github.com/sagi21805/LearnixOS-Book) and let me know.
+Just make sure you know this stuff, and probably similar stuff that I am forgetting. Also if in any place on this book I take some things for granted, please, open an issue [here](https://github.com/sagi21805/LearnixOS-Book) and let me know so I could explain it better.
 
 The base things that I expect you to know are:
 

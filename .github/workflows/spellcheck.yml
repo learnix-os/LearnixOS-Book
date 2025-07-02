@@ -2,7 +2,7 @@ name: spellcheck
 
 on:
   workflow_run:
-    workflows: ["linkcheck"]
+    workflows: [linkcheck]
     types:
       - completed
 jobs:

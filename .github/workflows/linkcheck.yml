@@ -13,7 +13,7 @@ jobs:
     needs: spellcheck
     steps:
       - name: Checkout The Repository
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - uses: taiki-e/install-action@v2
         with:

@@ -1,0 +1,23 @@
+name: linkcheck
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+
+jobs:
+  linkcheck:
+    runs-on: ubuntu-latest
+    needs: spellcheck
+    steps:
+      - name: Checkout The Repository
+      - uses: actions/checkout@v4
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook,mdbook-linkcheck
+
+      - name: Run link checker
+        run: mdbook build

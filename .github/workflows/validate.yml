@@ -1,4 +1,4 @@
-name: linkcheck
+name: validate
 
 on:
   push:
@@ -20,3 +20,15 @@ jobs:
 
       - name: Run link checker
         run: mdbook build
+
+  spellcheck:
+    name: Check Spelling
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Action Repository
+        uses: actions/checkout@v4
+
+      - name: Check the Spelling of the Book
+        uses: crate-ci/typos@v1.34.0
+

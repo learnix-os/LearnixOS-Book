@@ -8,7 +8,7 @@ I will not use ANY[^2] external libraries, and all of the thought process, code 
 
 ## Base Knowledge
 
-This blog will be technical, and will assume a little bit of a programming knowledge background, but not necessarily in rust
+This book will be technical, and will assume a little bit of a programming knowledge background, but not necessarily in rust
 
 If you are not coming from a low level programming knowledge that's fine!
 
@@ -22,7 +22,7 @@ The base things that I expect you to know are:
 
 - A knowledge in rust is not _that_ important, but knowing at least one programming language is Important. I myself have some more learning to do on Rust, and in this book I will also explain some great features that it have! 
 
-- A lot of motivation to learn and understand. Although this is a complex subject, in this blog I break it down into simple blocks of knowledge that are logical and easier to understand.
+- A lot of motivation to learn and understand. Although this is a complex subject, in this book I break it down into simple blocks of knowledge that are logical and easier to understand.
 
 ## Chapters Of This Book
 

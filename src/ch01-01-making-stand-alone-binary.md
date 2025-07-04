@@ -83,7 +83,7 @@ The first error is more obvious, because we don't have our standard library, the
 ## Defining a Panic Handler
 
 Rust doesn't offer a standard exception like other languages, for example, in python an exception could be raised like this
-``` python
+```python
 def failing_function(x: str):
     if not isinstance(x, str):
         raise TypeError("The type of x is not string!")  
@@ -129,11 +129,24 @@ pub struct PanicInfo<'a> {
 The `!` type is a very special type in rust, called the `never` type, as the type name may suggest, it says that a function that return the `!` type, should **never** return, which means our program has come to an end. 
 In a normal operating system, this is not a problem, just print the panic message + the location and kill the process, so it would not return. But in our own os unfortunately, this is not possible because there is not a process that we can exit. So, how can we prove to Rust we are not returning? by endlessly looping!
 
-So at the end, this is the definition of our handler:
+So at the end, this is the definition of our handler, which results in the following code
 
 ```rust
+#![no_std]
+fn main() {
+  
+}
+
 #[panic_handler]
 pub fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
 ```
+
+This code unfortunately still doesn't compile, because we didn't handle the last error
+
+## What is Unwinding and How to Disable It
+
+In a normal rust execution environment, when a program panics, it means that it has encountered an unrecoverable error.
+This means, that all of the memory should be cleaned up, so a memory leak doesn't occur. This is where _unwinding_ comes in.
+When a rust program panics, and the _panic strategy_ is to _unwind_, rust goes up the stack of the program, and cleans up the data from each function that it encounters. However, walking back and cleaning up is a lot of work. Rust, therefore, allows you to choose the alternative of immediately aborting, which ends the program without cleaning up. 

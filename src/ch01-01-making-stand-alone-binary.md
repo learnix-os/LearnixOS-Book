@@ -178,7 +178,7 @@ The linker is a program that is responsible to structure our code into segments,
 ```linker
 // linker.ld
 
-OUTPUT_FORMAT(binary);
+OUTPUT_FORMAT(binary)
 ENTRY(main)
 ```
 

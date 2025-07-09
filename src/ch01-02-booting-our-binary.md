@@ -25,7 +25,7 @@ In this guide, the operating system that we build will be compatible with the x8
 
 ## BIOS Boot Process
 
-When our computer (or virtual machine) powers on, the first software that the CPU encounters is the [BIOS](https://en.wikipedia.org/wiki/BIOS), which is a piece of software that is responsible to perform hardware initialization during the computer start up, and it comes pre installed in the motherboard and as an OS developer, we can't interfere or modify the BIOS in any way.
+When our computer (or virtual machine) powers on, the first software that the CPU encounters is the [BIOS](https://en.wikipedia.org/wiki/BIOS), which is a piece of software that is responsible to perform hardware initialization during the computer start up. It comes pre installed on the motherboard and as an OS developer, we can't interfere or modify the BIOS in any way.
 
 The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes) form the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `vaild`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
 
@@ -34,6 +34,7 @@ At this time for backward compatibility reasons, the computer starts at a reduce
 ## Building Our Target
 
 With this information, we understand that we will need to build a target that will support 16bit real mode.
+So, firstly, let's look if there is 
 
 As a clue, we can try and peak on the builtin targets, and check if there is something similar that we can borrow.
 

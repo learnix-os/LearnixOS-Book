@@ -200,7 +200,7 @@ This script tells cargo, to add the -C link-arg=--script=./linker.ld to our comp
 But, after we do all this and again, run `cargo build`, we get the same error, at first, this doesn't seem logical, because we defined a main function. But, although it is true that we defined one, we didn't consider Rust's default [mangling](https://doc.rust-lang.org/rustc/symbol-mangling/index.html).
 This is a very clever idea done by Rust, and without it, things like this wouldn't be possible
 
-```rust
+```rust,fp=impl.rs
 struct A(u32);
 
 impl A {
@@ -227,7 +227,7 @@ A similar thing is happening to our `main` function, which makes it name not to 
 To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function, which will make it's name to be just 'main'
 
 Which makes this, our final main.rs file!
-```rust,main.rs
+```rust,fp=main.rs
 #![no_std]
 #![no_main]
 

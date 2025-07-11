@@ -43,7 +43,7 @@ If you have done everything correct, you project should look like this
 │   └── main.rs
 ```
 and the main file, should look something like this:
-```rust
+```rust,fp=main.rs
 fn main() {
     println!("Hello World!");
 }
@@ -57,7 +57,7 @@ As mentioned before we don't want to depend on the standard library because it i
 
 Now, if we then try to compile our crate, we get this error massage:
 
-```rust
+```rust,banner=no
 error: cannot find macro `println` in this scope
  --> src/main.rs:4:5
   |
@@ -83,14 +83,14 @@ The first error is more obvious, because we don't have our standard library, the
 ## Defining a Panic Handler
 
 Rust doesn't offer a standard exception like other languages, for example, in python an exception could be raised like this
-```python
+```python,fp=error.py
 def failing_function(x: str):
     if not isinstance(x, str):
         raise TypeError("The type of x is not string!")
 ```
 
 Instead, Rust provides us with the `panic!` macro, which will call the `Panic Handler Function`. This function is very important and it will be called every time the `panic!` macro will be invoked, for example:
-```rust
+```rust,fp=main.rs
 fn main() {
     panic!("This is a custom message");
 }
@@ -99,7 +99,7 @@ Normally, the Standard Library provides us with an implementation of the Panic H
 This function can be any function, it just have to include the attribute `#[panic_handler]`, this attribute is added, so the compiler will know which function to use when invoking the `panic!` macro, to enforce that only one function of this type exists, and to also enforce the input argument and the output type.
 
 If we create an empty function for the panic handler, we will get this error:
-```rust
+```rust,banner=no
 error[E0308]: `#[panic_handler]` function has wrong type
   --> src\main.rs:10:1
    |
@@ -115,8 +115,7 @@ This means that it wants our function will get a reference to a structure called
 But what is this struct? and what is this weird type?
 
 The `PanicInfo` struct, includes basic information about our panic, such as the location, and message, and it's definition can be found in the core library
-```rust
-// core::panic::panic_info.rs
+```rust,fp=<rust-doc>core/panic/panic_info.rs
 
 pub struct PanicInfo<'a> {
     message: &'a fmt::Arguments<'a>,
@@ -131,7 +130,7 @@ In a normal operating system, this is not a problem, just print the panic messag
 
 So at the end, this is the definition of our handler, which results in the following code
 
-```rust
+```rust,fp=main.rs
 #![no_std]
 fn main() {
 
@@ -152,7 +151,7 @@ This means, that all of the memory should be cleaned up, so a memory leak doesn'
 When a rust program panics, and the _panic strategy_ is to _unwind_, rust goes up the stack of the program, and cleans up the data from each function that it encounters. However, walking back and cleaning up is a lot of work. Rust, therefore, allows you to choose the alternative of immediately aborting, which ends the program without cleaning up. This alternative is also useful in our case, where we don't have the sense of "cleaning up", because we still doesn't have an operating system.
 So, to simply switch the panic strategy to abort, we can add the following line to our `Cargo.toml` file:
 
-```toml
+```toml,fp=Cargo.toml
 [profile.dev]
 panic = "abort"
 
@@ -163,7 +162,7 @@ panic = "abort"
 After we disabled unwinding, we can now, hopefully try to compile our code!
 
 But, by running `cargo run` we get the following error
-```rust
+```rust,banner=no
 error: using `fn main` requires the standard library
   |
   = help: use `#![no_main]` to bypass the Rust generated entrypoint and declare a platform specific entrypoint yourself, usually with `#[no_mangle]`
@@ -175,9 +174,7 @@ As per usual, the rust compiler errors are pretty clear, and they tell us exactl
 To define an entry point, we need to understand the linker.
 
 The linker is a program that is responsible to structure our code into segments, define entry point, define the output format, and also link other code to our program. This configuration is controlled by a linker script. For example, a very simple linker script may look like this
-```linker
-// linker.ld
-
+```linker,fp=linker_script.ld
 OUTPUT_FORMAT(binary)
 ENTRY(main)
 ```
@@ -186,8 +183,7 @@ This will set our entry point to main, and our output into a raw binary, which m
 [^3]: Operating systems have their own binary header, so they can understand how to treat a binary, some common ones are [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) and [PE](https://en.wikipedia.org/wiki/Portable_Executable)
 
 Then, to make our linker to use this script, we have mainly two options, one is to add some arguments to our build command, and the other one is to create a [build](https://doc.rust-lang.org/cargo/reference/build-scripts.html) script. In this guide we use the following build script.
-```rust
-// build.rs
+```rust,fp=build.rs
 use std::path::Path;
 
 fn main() {
@@ -231,7 +227,7 @@ A similar thing is happening to our `main` function, which makes it name not to 
 To fix it, we can add the `#[unsafe(no_mangle)]` attribute to our main function, which will make it's name to be just 'main'
 
 Which makes this, our final main.rs file!
-```rust
+```rust,main.rs
 #![no_std]
 #![no_main]
 

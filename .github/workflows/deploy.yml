@@ -28,6 +28,12 @@ jobs:
         with:
           tool: mdbook,mdbook-linkcheck
 
+      - name: Install mdbook-utils
+        run: cargo install mdbook-utils
+
+      - name: Create sitemap
+        run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml 
+
       - name: Build the book
         run: mdbook build
 

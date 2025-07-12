@@ -1,3 +1,3 @@
 [files]
-extend-exclude = ["theme/catppuccin.css", ".git"]
+extend-exclude = ["theme/*", ".git"]
 ignore-hidden = false

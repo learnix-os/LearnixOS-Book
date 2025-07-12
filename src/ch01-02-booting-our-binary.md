@@ -25,7 +25,7 @@ In this guide, the operating system that we build will be compatible with the x8
 
 When our computer (or virtual machine) powers on, the first software that the CPU encounters is the [BIOS](https://en.wikipedia.org/wiki/BIOS), which is a piece of software that is responsible to perform hardware initialization during the computer start up. It comes pre installed on the motherboard and as an OS developer, we can't interfere or modify the BIOS in any way.
 
-The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes) form the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `vaild`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
+The last thing BIOS does before handing to us the control over the computer, is to load one sector (512 bytes) form the boot device (can be hard-disk, cd-rom, floppy-disk etc) to memory address `0x7c00` if the sector is considered `valid`, which means that it has the `BIOS Boot Signature` at the end of it, which is the byte sequence `0x55` followed by `0xAA` in offset bytes 510 and 511 respectively.
 
 At this time for backward compatibility reasons, the computer starts at a reduced instruction set, at a 16bit mode called [_real mode_](https://en.wikipedia.org/wiki/Real_mode) which provides direct access to the BIOS interface, and access to all I/O or peripheral device. This mode lacks support for memory protection, multitasking, or code privileges, and has only 1Mib of address space. Because of these limitation we want to escape it as soon as possible, but that is a problem that we will solve later (Maybe add link to when this is done).
 
@@ -109,7 +109,7 @@ This target has some useful info that we can use, like useful keys, such as `arc
 "cpu": "i386",
 
 // Describes how data is laid out in memory for the LLVM backend, split by '-':
-// e          -> Little endieness (E for big endiness)
+// e          -> Little endianness (E for big endianness)
 // m:e        -> ELF style name mangling
 // p:32:32    -> The default pointer is 32-bit with 32-bit address space
 // p270:32:32 -> Special pointer type ID-270 with 32-bit size and alignment
@@ -118,7 +118,7 @@ This target has some useful info that we can use, like useful keys, such as `arc
 // i128:128   -> 128-bit integers are 128-bit aligned
 // f64:32:64  -> 64-bit floats are 32-bit aligned, and can also be 64-bit aligned
 // n:8:16:32  -> Native integers are 8-bit, 16-bit, 32-bit
-// S128       -> Stack is 128-bit allgined
+// S128       -> Stack is 128-bit aligned
 "data-layout": "e-m:e-p:32:32-p270:32:32-p271:32:32-p272:64:64-i128:128-f64:32:64-f80:32-n8:16:32-S128",
 
 // No dynamic linking is supported, because there is no OS runtime loader.
@@ -157,7 +157,7 @@ This target has some useful info that we can use, like useful keys, such as `arc
 // The default pointer is 32-bit
 "target-pointer-width": "32",
 
-// The endieness, little or big
+// The endianness, little or big
 "target-endian": "little",
 
 // panic strategy, also set on cargo.toml

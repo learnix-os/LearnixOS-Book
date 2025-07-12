@@ -10,9 +10,7 @@ This provides us with a lot of flexibility, but it is the core reason for our pr
 The target contains information for the `rustc` compiler about which header should the binary have, what is the pointer and int size, what instruction set to use, and more information about the features of the cpu that it could utilize.
 So, because we compiled our code just with `cargo build`, cargo, which under the hood uses `rustc`, compiled our code to our default target, which resulted in a binary that is operating specific and not a truly stand alone even though we used `#![no_std]`.
 
-> **Note:**
->
-> if you want to see the information of your computer target, use the following command
+> **Note:** if you want to see the information of your computer target, use the following command
 > ```
 > rustc +nightly -Z unstable-options --print target-spec-json
 > ```
@@ -37,7 +35,7 @@ With this information, we understand that we will need to build a target that wi
 Unfortunately, if we look at all of the available targets, we would see that there is no target that support this unique need, but, luckily, Rust allows us to create custom targets!
 
 As a clue, we can try and peak on the builtin targets, and check if there is something similar that we can borrow. For example, my target, which is the x86_64-unknown-linux-gnu looks like this:
-```json
+```json,icon=@https://www.svgrepo.com/show/373712/json.svg
 {
   "arch": "x86_64",
   "cpu": "x86-64",
@@ -101,8 +99,7 @@ As a clue, we can try and peak on the builtin targets, and check if there is som
 ```
 This target has some useful info that we can use, like useful keys, such as `arch`, `linker-flavor`, `cpu` and more, that we will use in our target, and even the `data-layout` that we will copy almost entirely. Our final, 16bit target, will look like this:
 
-[build/targets/16bit_target.json](https://github.com/sagi21805/LearnixOS/blob/master/build/targets/16bit_target.json) (The real file in the project!)
-```json,filename=build/targets/16bit_target.
+```json,fp=<repo>build/targets/16bit_target.json,icon=@https://www.svgrepo.com/show/373712/json.svg
 {
 // The general architecture to compile to, x86 cpu architecture in our case
 "arch": "x86",
@@ -178,29 +175,167 @@ This target has some useful info that we can use, like useful keys, such as `arc
 "relocation-model": "static"
 }
 ```
-Now, with this code, and the linker script from the last section, we can finally compile our code and boot it, so lets try and do that!
+Now, the only thing left to do before we can run our code, is to include the boot signature at our binary. This can be done in the linker script by adding the following lines: 
+
+```linker,fp=linker_script.ld
+SECTIONS {
+
+    /* 
+      Make the start offset of the file 0x7c00 This is useful, 
+      because if make jump to a function that it's offset in the binary is 0x100, 
+      it will actually be loaded at address 0x7d00 by the BIOS, and not 0x100, 
+      so we need to consider this offset, and that's how we do it. 
+    */
+    . = 0x7c00;
+
+    /* 
+      Currently, we have nothing on the binary,
+      if we write the signature now, it will be at the start of the binary. 
+      Because we want the signature to start at the offset of 510 in our binary, 
+      we pad it with zeros.
+    */
+    .fill : {
+        FILL(0)
+        . = 0x7c00 + 510;
+    }
+
+
+    /* Write the boot signature to make the sector bootable */
+    .magic_number : { SHORT(0xaa55) }
+}
+```
 
 To compile our code, we just need to run the following command:
 ```
-cargo build --release --target 16bit_target.json
+cargo +nightly build --release --target .\16bit_target.json -Z build-std=core
 ```
 
-> **Default Segments In Rust Are:**
-> - **.text**   - Includes the code of our program, which is the machine code that is generated for all of the functions
->   ```rust
+The `+nightly` tells rust to use the nightly toolchain, which includes a lot of feature that we will use, including the -Z flag to rustc.
+ 
+The `build-std` flag tells cargo to also compile the core library with the specified target, and not use the precompiled default in our system.
+
+To see that indeed, the boot signature is in the correct place, we can use the `Format-Hex` command in windows or the `hexdump` command in Linux or MacOS to see the hex of our file.
+
+This should result in a lot of zeros, and at the end, this line, where we can see the boot signature in the right offset
+`000001F0   00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 AA` 
+
+
+> **Note:**
+> If you are like me, and you don't like to specify a lot of configuration in the command of compiling, these arguments can be specified in the following configuration files.
+> 
+> ```toml,fp=rust-toolchain.toml
+> [toolchain]
+> channel = "nightly"
+> ```
+> To define that the default toolchain is the nightly toolchain
+> 
+> ```toml,fp=.cargo/config.toml
+> [unstable]
+> build-std = ["core"]
+> ```
+> To add the unstable `build-std` flag with the core parameter in it.
+
+## Running Our Code
+
+Because our code is experimental, we will not want to run it on our machine, because it can make **PERMANENT DAMAGE** to it. This is because we don't monitor cpu temperature, and other hardware sensors that can help us protect our pc. Instead, we will run our code in [QEMU](https://www.qemu.org/), which is a free and open-source full machine emulator and virtualizer. To download QEMU for your platform, follow the instructions [here](https://www.qemu.org/download/)
+
+To make a sanity check that QEMU indeed works on your machine with our wanted architecture after you downloaded it, run `qemu-system-x86_64` on a terminal. This should open a window and in it write some messages it tries to boot from certain devices, and after it fails, it should write it cannot find any bootable device. If that's what you are seeing, it all works as it should!  
+
+To provide our code, we need to add the `-drive format=raw,file=<path-to-bin-file>` flag to qemu, which will add to our virtual machine a disk drive with our code.
+
+If you are following the [walkthrough](https://github.com/learnix-os/LearnixOS-Book-Walkthrough), this is the command you need to run.
+
+```
+qemu-system-x86_64 -drive format=raw,file=target/16bit_target/release/LearnixOS-Book-Walkthrough
+```
+
+At a first glance, we might think our code still doesn't work, because all we see is a black screen, but, if you notice closely, we don't get more messages of the BIOS trying other boot devices, and we don't get the message of `"No bootable device."`. 
+
+So why we see black screen? This is because we didn't provide the computer any code to run and our main function is empty, but now we have the platform to write any code that we like!
+
+## Hello, World!
+To print "Hello, World!", we can utilize the BIOS [video interrupt](https://en.wikipedia.org/wiki/INT_10H) which can help us print [ASCII](https://en.wikipedia.org/wiki/ASCII) characters to the screen.
+
+_For now, don't worry about the code implementation and just use and play with it. This code piece, and a lot more will be explained in the next chapter._
+
+```rust,fp=main.rs
+use core::arch::asm;
+
+#[unsafe(no_mangle)]
+fn main() {
+    let msg = b"Hello, World!";
+    for &ch in msg {
+        unsafe {
+            asm!(
+                "mov ah, 0x0E",   // INT 10h function to print a char
+                "mov al, {0}",    // The input ASCII char
+                "int 0x10",       // Call the BIOS Interrupt Function
+                // --- settings ---
+                in(reg_byte) ch,  // {0} Will become the register with the char
+                out("ax") _,      // Lock the 'ax' as output reg, so it won't be used elsewhere
+            );
+        }
+    }
+
+    unsafe {
+        asm!("hlt"); // Halt the system
+    }
+}
+```
+
+When we try to compile and run our code, we can see that it's indeed booting, but we don't see any massage.
+If you believe me that the code above is correct, and indeed works, we can try and look at the binary file that the compiler emitted with the `hexdump` command in Linux or MacOS, or `Format-Hex` in Windows.
+
+When we do that, we can notice that it seems that more code was added, but at the end of the file, and not at the start of it, and more over, it is located after the first sector which means it doesn't even loaded by the BIOS. To resolve this, we need to learn about the default segment `rustc` generates.
+
+> ### Default Segments In Rust 
+> - **.text** - Includes the code of our program, which is the machine code that is generated for all of the functions
+>   ```rust,banner=no
 >   fn some_function(x: u32, y: u32) -> u32 {
 >     return x + y;
 >   }
 >   ```
-> - **.data**   - Includes the initialized data of our program, like static variables.
->   ```rust
+> - **.data** - Includes the initialized data of our program, like static variables.
+>   ```rust,banner=no
 >   static VAR: u32 = 42;
 >   ```
-> - **.bss**    - Includes the uninitialized data of our program
->   ```rust
+> - **.bss** - Includes the uninitialized data of our program
+>   ```rust,banner=no
 >   static mut MESSAGE: String = MaybeUninit::uninit();
 >   ```
 > - **.rodata** - Includes the read-only data of our program
->   ```rust
+>   ```rust,banner=no
 >   static mut MESSAGE: &'static str = "Hello World!";
 >   ```
+> - **.eh_frame & .eh_frame_hdr** - Includes information that is relevant to exception handling and stack unwinding. These section are not relevant for us because we use `panic = "abort"`.
+
+So, to make our linker put the segments in the right position, we need to change the `SECTION` segment of our linker script to this. 
+
+```linker,fp=linker_script.ld
+SECTIONS {
+
+    . = 0x7c00;
+
+    /* 
+      Rust also mangles segment names. 
+      The "<segment_name>.*" syntax is used to also include all the mangles   
+    */
+
+    .text : { *(.text .text.*) }
+    .bss : { *(.bss .bss.*) }
+    .rodata : { *(.rodata .rodata.*) }
+    .data : { *(.data .data.*) }
+    /DISCARD/ : {
+        *(.eh_frame .eh_frame.*)
+        *(.eh_frame_hdr .eh_frame_hdr.*) 
+    }
+
+    . = 0x7c00 + 510;
+
+    .magic_number : { SHORT(0xaa55) }
+}
+```
+
+Now, when we compile and run our code, we can see our message!
+
+<figure><img src="assets/hello_world.png" alt=""><figcaption></figcaption></figure>

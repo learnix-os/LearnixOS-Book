@@ -24,11 +24,9 @@ This book references or links to:
 - [Rust Language](https://www.rust-lang.org) – MIT/Apache 2.0
 - [QEMU](https://www.qemu.org) – GPL v2 (used as testing tool)
 
-The boarded code block are done with
-- [whichlang](https://github.com/phoenixr-codes/mdbook-whichlang)
-Link checking with
-- [mdbook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck)
-Type checking with
-- [typos](https://github.com/crate-ci/typos)
+The book uses mdbook plugins and supported software from: 
+- The boarded code block are done with [whichlang](https://github.com/phoenixr-codes/mdbook-whichlang)
+- Link checking are done with [mdbook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck)
+- Type checking is done with [typos](https://github.com/crate-ci/typos)
 
 All are linked only for learning purposes. No third-party content is redistributed here.

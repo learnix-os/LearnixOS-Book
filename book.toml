@@ -4,9 +4,11 @@ title = "The LearnixOS Book"
 language = "en"
 
 [output.html]
+git-repository-url = "https://github.com/sagi21805/LearnixOS-Book"
 default-theme = "rust"
 preferred-dark-theme = "mocha"
-additional-css = ["theme/catppuccin.css"]
+additional-css = ["theme/catppuccin.css", "theme/whichlang.css"]
+additional-js = ["theme/whichlang.js", "theme/filepath-links.js"]
 
 [output.linkcheck]
 follow-web-links = true

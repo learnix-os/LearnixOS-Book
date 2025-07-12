@@ -1,6 +1,6 @@
 # Chapter 1
 
-Let's start our Operating System journey! There is a lot to learn, but every journey hast to start somewhere :) 
+Let's start our Operating System journey! There is a lot to learn, but every journey has to start somewhere :) 
 
 In this chapter we discuss: 
 - How to make a standalone[^1] binary 

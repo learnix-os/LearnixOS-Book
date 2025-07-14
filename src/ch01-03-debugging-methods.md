@@ -37,7 +37,7 @@ Then, in this terminal, run the following command:
 
 (qemu) pmemsave 0x1000 0x500 memory.dump
 
-// This wil create a dump of size 0x500 from 0x1000 - 0x1500.
+// This will create a dump of size 0x500 from 0x1000 - 0x1500.
 ```
 
 

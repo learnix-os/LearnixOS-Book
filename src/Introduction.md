@@ -1,5 +1,7 @@
 # Writing Operating System In Rust!
 
+_"If you can't explain it simply, you don't understand it well enough." — Albert Einstein_
+
 Hello there![^1]
 
 This is a book on how to write a functioning operating system in rust, from scratch.

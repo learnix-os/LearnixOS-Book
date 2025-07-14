@@ -1,5 +1,9 @@
 # A Minimal Bootloader
 
-To Be Continued...
+_"From a small spark may burst a mighty flame." — Dante Alighieri_
 
-Latest Development is at [LearnixOS](https://github.com/learnix-os/LearnixOS/)
+---
+
+In this chapter we will learn what is a bootloader and how can we crate one.
+
+We will make a 

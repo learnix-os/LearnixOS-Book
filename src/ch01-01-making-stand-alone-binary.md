@@ -1,5 +1,9 @@
 # Making a Standalone Binary
 
+_"Machines take me by surprise with great frequency." — Alan Turing_
+
+---
+
 The first step in making our operating system, is to make a program that can be compiled, and executed, without any dependency.
 This is not a straight forward task, because every program that we use in our daily life uses at least one, very important dependency, `The Standard Library`
 This library is some of the time provided by the operating system itself, for example libc for the linux operating system, or the winapi for windows operating system, and most of the time it is wrapped around by our programming languages.

@@ -1,5 +1,9 @@
 # Booting Our Binary
 
+_"There is no elevator to success — you have to take the stairs." — Zig Ziglar_ 
+
+---
+
 In the previous section, we created a stand alone binary, which is not linked to any standard library. But if you looked closely, and inspected the binary, you would see that although we defined our output format to be 'binary' in the linker script, we got a different format. Why is that?
 
 ## Understanding Rust Targets

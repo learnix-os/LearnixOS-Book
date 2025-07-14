@@ -21,7 +21,7 @@ So, because we compiled our code just with `cargo build`, cargo, which under the
 
 ## Custom Rust Target
 
-To boot our binary, we need to create a custom target that will specify that no vendor or operating system in our [_target triple_](https://wiki.osdev.org/Target_Triplet) is used, and that it will contain the right [architecture](https://simple.wikipedia.org/wiki/Computer_architecture). But, what architecture we need?
+To boot our binary, we need to create a custom target that will specify that no vendor or operating system in our [_target triple_](https://clang.llvm.org/docs/CrossCompilation.html#target-triple) is used, and that it will contain the right [architecture](https://simple.wikipedia.org/wiki/Computer_architecture). But, what architecture we need?
 
 In this guide, the operating system that we build will be compatible with the x86_64 computer architecture (and maybe other architectures in the far far future). So, for that we will need to understand what an x86_64 chip expects at boot time.
 

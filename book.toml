@@ -8,7 +8,11 @@ git-repository-url = "https://github.com/sagi21805/LearnixOS-Book"
 default-theme = "rust"
 preferred-dark-theme = "mocha"
 additional-css = ["theme/catppuccin.css", "theme/whichlang.css"]
-additional-js = ["theme/whichlang.js", "theme/filepath-links.js"]
+additional-js = [
+    "theme/whichlang.js",
+    "theme/filepath-links.js",
+    "theme/giscuss.js",
+]
 
 [output.linkcheck]
 follow-web-links = true

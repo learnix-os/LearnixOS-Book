@@ -3,7 +3,7 @@ name: deploy
 on:
   workflow_run:
     workflows: [validate]
-    types: 
+    types:
       - completed
     branches:
       - master
@@ -23,16 +23,37 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install mdBook using taiki-e/install-action
+      - name: Install mdBook and mdbook-linkcheck (cached by action)
         uses: taiki-e/install-action@v2
         with:
           tool: mdbook,mdbook-linkcheck
 
+      - name: Cache cargo install binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: cargo-bin-mdbook-utils-v0.8.1-${{ runner.os }}
+          restore-keys: |
+            cargo-bin-mdbook-utils-v0.8.1-${{ runner.os }}-
+
+      - name: Cache cargo registry and git sources
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-registry-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            cargo-registry-${{ runner.os }}-
+
       - name: Install mdbook-utils
-        run: cargo install mdbook-utils
+        run: |
+          if ! command -v mdbook-utils &> /dev/null; then
+            cargo install mdbook-utils --version 0.8.1 --locked
+          fi
 
       - name: Create sitemap
-        run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml 
+        run: mdbook-utils sitemap -m src -b https://www.learnix-os.com -o src/assets/sitemap.xml
 
       - name: Build the book
         run: mdbook build

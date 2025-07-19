@@ -13,6 +13,10 @@ additional-js = [
     "theme/filepath-links.js",
     "theme/giscuss.js",
 ]
+mathjax-support = true
+
+[output.html.render]
+task-list = true
 
 [output.linkcheck]
 follow-web-links = true

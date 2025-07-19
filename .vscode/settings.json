@@ -1,0 +1,31 @@
+{
+    "cSpell.words": [
+        "Bootable",
+        "catppuccin",
+        "chipsets",
+        "debuginfo",
+        "embedify",
+        "giscus",
+        "hexdump",
+        "javax",
+        "kcfi",
+        "Learnix",
+        "libc",
+        "linkcheck",
+        "lodsb",
+        "malloc",
+        "movs",
+        "println",
+        "redzone",
+        "relro",
+        "rodata",
+        "rpath",
+        "rustc",
+        "rustup",
+        "safestack",
+        "Sagi",
+        "stdlib",
+        "uninit",
+        "winapi"
+    ]
+}

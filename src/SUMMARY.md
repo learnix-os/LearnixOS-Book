@@ -10,7 +10,7 @@
     - [Debugging Tips](./ch01-03-debugging-methods.md)
 
 - [A Minimal Bootloader](./ch02-00-a-minimal-bootloader.md)
-    - [Reading From Disk](./ch02-01-reading-from-disk.md)
+    - [Legacy Legacy Legacy](./ch02-01-legacy-legacy-legacy.md)
     - [Entering Protected Mode](./ch02-02-entering-protected-mode.md)
     - [What is Memory Paging?](./ch02-03-what-is-memory-paging.md)
     - [Booting the Kernel](./ch02-04-booting-the-kernel.md)

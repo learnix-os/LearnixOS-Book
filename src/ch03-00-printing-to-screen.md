@@ -1,6 +1,6 @@
 # Printing To Screen
 
-_"Any sufficiently advanced console output is indistinguishable from magic." — Arthur C. Clarke, adapted_
+_"The most effective debugging tool is still careful thought, coupled with judiciously placed print statements." — Brian Kernighan_
 
 ---
 

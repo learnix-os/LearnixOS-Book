@@ -2,6 +2,7 @@
     "cSpell.words": [
         "Bootable",
         "catppuccin",
+        "chipsets",
         "debuginfo",
         "embedify",
         "giscus",
@@ -11,6 +12,7 @@
         "Learnix",
         "libc",
         "linkcheck",
+        "lodsb",
         "malloc",
         "movs",
         "println",

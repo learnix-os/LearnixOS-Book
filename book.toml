@@ -7,11 +7,16 @@ language = "en"
 git-repository-url = "https://github.com/sagi21805/LearnixOS-Book"
 default-theme = "rust"
 preferred-dark-theme = "mocha"
-additional-css = ["theme/catppuccin.css", "theme/whichlang.css"]
+additional-css = [
+    "theme/catppuccin.css",
+    "theme/whichlang.css",
+    "theme/macro.css",
+]
 additional-js = [
     "theme/whichlang.js",
     "theme/filepath-links.js",
     "theme/giscuss.js",
+    "theme/highlight-macros.js",
 ]
 mathjax-support = true
 
@@ -19,5 +24,4 @@ mathjax-support = true
 task-list = true
 
 [output.linkcheck]
-follow-web-links = true
 traverse-parent-directories = false

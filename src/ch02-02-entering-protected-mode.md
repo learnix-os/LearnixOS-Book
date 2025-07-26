@@ -4,7 +4,7 @@ _"With great power comes great responsibility." — Voltaire / Spider-Man_
 
 ---
 
-After we read from disk, it wil enable us to write much more code, because we are not limited to 512 bytes.
+After we read from disk, it will enable us to write much more code, because we are not limited to 512 bytes.
 But just before we do that, we don't want to limit ourselves only to 16bit instructions. 
 For that we need to enter [`protected mode`](https://en.wikipedia.org/wiki/Protected_mode) which will allow us to unlock some cpu features such as 32bit instructions.
 
@@ -295,7 +295,7 @@ impl Example {
 ```
 </details>
 
-So now, without a lot of boiler plate, we can define our bit flags
+So now, without a lot of boiler plate, we can define our `AccessByte` and `LimitFlags`.
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
 impl AccessByte {
     /// Creates an access byte with all flags turned off.
@@ -346,17 +346,27 @@ impl LimitFlags {
 }
 ```
 
-Then, creating a new entry, is much more simpler and it just involves some bit shifts to divide our base address and limit size into multiple parts
 
+Now, just before creating a `new` function to our entry, we don't want each time to specify the base in three parts and the limit in two parts, instead we want the `new` function to take care of that.
+This will complicate it a bit, but will provide much more friendly interface. 
 
 ```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
 impl GlobalDescriptorTableEntry32 {
-    pub const fn new(base: u32, limit: u32, access_byte: AccessByte, flags: LimitFlags) -> Self {
+    pub const fn new(
+        base: u32, 
+        limit: u32, 
+        access_byte: AccessByte, 
+        flags: LimitFlags
+    ) -> Self {
+
+        // Split base into the appropriate parts
         let base_low = (base & 0xffff) as u16;
-        let base_mid = ((base >> 0x10) & 0xff) as u8;
+        let base_mid = ((base >> 0x10) & 0xff) as u8; 
         let base_high = ((base >> 0x18) & 0xff) as u8;
+        // Split limit into the appropriate parts
         let limit_low = (limit & 0xffff) as u16;
         let limit_high = ((limit >> 0x10) & 0xf) as u8;
+        // Combine the part of the limit size with the flags
         let limit_flags = flags.0 | limit_high;
         Self {
             limit_low,
@@ -370,6 +380,156 @@ impl GlobalDescriptorTableEntry32 {
 }
 ```
 ## Jumping to the next stage!
+
+Now, after understanding the global descriptor table, we want to jump to the next stage.
+This will require us to create and load a temporary global descriptor table.
+
+Each table must have at least three entries, an initial `null` entry that is filled with zeros, which is always required as the first entry, a `data` entry for the data segment so we can read and write to memory, and code entry so we can execute code.
+
+Together it will all look like this:
+
+```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
+// This structure will seem to rust as `dead code` because we only initialize
+// and not use it's fields directly, to remove the warning, we add this attribute.
+#[allow(dead_code)]
+pub struct GlobalDescriptorTable {
+    null: GlobalDescriptorTableEntry32,
+    code: GlobalDescriptorTableEntry32,
+    data: GlobalDescriptorTableEntry32,
+}
+
+impl GlobalDescriptorTable {
+    /// Creates default global descriptor table for protected mode
+    pub const fn protected_mode() -> Self {
+        GlobalDescriptorTable {
+            // Null entry, fields with zeros.
+            null: GlobalDescriptorTableEntry32::new(
+                0, 
+                0, 
+                AccessByte::new(), 
+                LimitFlags::new()
+            ),
+            code: GlobalDescriptorTableEntry32::new(
+                // The base is zero, because our code is aligned to 0x0 address
+                0,
+                // The size is max, so we won't have any limit
+                0xfffff,
+                // We mark this as code segment, with the highest privileges
+                AccessByte::new()
+                    .present()
+                    .dpl(0)
+                    .code_or_data()
+                    .executable()
+                    .readable(),
+                // Set the units of the limit to 4kib and set 32bit mode.
+                LimitFlags::new().granularity().protected(),
+            
+            ),
+            data: GlobalDescriptorTableEntry32::new(
+                // The base is zero, because our data is aligned to 0x0 address
+                0,
+                // The size is max, so we won't have any limit
+                0xfffff,
+                // We mark this as code segment, with the highest privileges
+                AccessByte::new().present().dpl(0).code_or_data().writable(),
+                // Set the units of the limit to 4kib and set 32bit mode.
+                LimitFlags::new().granularity().protected(),
+            ),
+        }
+    }
+}
+```
+
+If you noticed, all of the functions that we defined so far are marked with `const` this is useful because we can create our global descriptor table as a static variable, which will be in the binary.
+This is useful because it will make our initialization of the global descriptor table to be in compile time.
+
+So, the only thing left to do is to load the global descriptor table. This can be done with the `lgdt` instruction which loads the `Global Descriptor Table Register` with our table. This is a hidden register that includes information about our global descriptor table, like it's size and address in memory. 
+
+We will create a `load` function that will create this register structure, and will load it to the cpu.
+
+```rust,fp=shared/cpu_utils/src/structures/global_descriptor_table.rs
+// The packed and repr(C) attributes are very important.
+// The repr(C) ensures the order of the data is as specified.
+// The packed attribute will ignore `Data Structure Alignment`
+#[repr(C, packed(2))]
+pub struct GlobalDescriptorTableRegister32 {
+    // This is the size of our table in bytes - 1.
+    pub limit: u16,
+    // This is the address of where we store the table.
+    pub base: *const GlobalDescriptorTable,
+}
+
+impl GlobalDescriptorTable {
+    
+    pub unsafe fn load(&'static self) {
+        let global_descriptor_table_register: GlobalDescriptorTableRegister32 = {
+            GlobalDescriptorTableRegister32 {
+                // Set the limit to the size - 1 
+                limit: (size_of::<GlobalDescriptorTable>() - 1) as u16,
+                // Set the base to the address of the table 
+                // (This is the same as the address of the var, because it is static)
+                base: self as *const GlobalDescriptorTable,
+            }
+        };
+        unsafe {
+            asm!(
+                // Clear Interrupt Flag, This is done because we can't let random 
+                // hardware interrupts to interfere with the lgdt instruction
+                // This will also be useful in the future until we set up interrupts 
+                "cli",
+                // Then, load the table using our now created register.
+                "lgdt [{}]",
+                in(reg) &global_descriptor_table_register,
+                options(readonly, nostack, preserves_flags)
+            );
+        }
+    }
+}
+```
+
+Now, to apply all of the created functionality, enable protected mode, and to jump to the next stage, we add the following code to our entry function.
+
+```rust,fp=kernel/stages/first_stage/src/main.rs
+
+// Static variable that holds our table
+static GLOBAL_DESCRIPTOR_TABLE: GlobalDescriptorTable = {
+    GlobalDescriptorTable::protected_mode();
+}
+pub fn first_stage() -> ! {
+
+    // Load Global Descriptor Table
+    GLOBAL_DESCRIPTOR_TABLE.load();
+
+    // Set the Protected Mode bit in control register 0
+    asm!(
+        "mov eax, cr0",
+        "or eax, 1",
+        "mov cr0, eax",
+        options(readonly, nostack, preserves_flags)
+    );
+
+    // Jump to the next stage
+    // We perform a long jump, which is a jump that also loads our segment
+    // from the global descriptor table.
+    //
+    // The segment is the offset in the global descriptor table  
+    // which for the code segment is 0x10 (For readability, added an enum)
+    //
+    // The `next_stage` is the address of the next stage.
+    // This is a variable in our constants that I want you to think what is should be
+    // as always, the answer, or the var that I chose, will be in the Walkthrough
+    asm!(
+        "jmp ${section}, ${next_stage}",
+        section = const Sections::KernelCode as u8,
+        next_stage = const SECOND_STAGE_OFFSET,
+    );
+}
+```
+
+
+To use 
+
+
 
 To Be Continued...
 
